@@ -54,14 +54,15 @@ function contains(a, obj) {
     return false;
 }
 function ShowChart() {
+    var color = d3.scale.category10();
+
+    document.getElementById("grafico").innerHTML = "";
+     document.getElementById("leg").innerHTML = "";
     var margin = {top: 20, right: 80, bottom: 30, left: 50},
-    width = 960 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
+    width = 560 - margin.left - margin.right,
+    height = 300 - margin.top - margin.bottom;
 
 var parseDate = d3.time.format("%Y").parse;
-
-//var x = d3.time.scale()
-//    .range([0, width]);
 
 var x = d3.time.scale()
     .range([0, width]);
@@ -71,8 +72,6 @@ var x = d3.time.scale()
     
 var y = d3.scale.linear()
     .range([height, 0]);
-
-var color = d3.scale.category10();
 
 var xAxis = d3.svg.axis()
     .scale(x)
@@ -90,7 +89,7 @@ var line = d3.svg.line()
     .x(function(d) { return x(d.date); })
     .y(function(d) { return y(d.name); });
 
-var svg = d3.select("body").append("svg")
+var svg = d3.select("#grafico").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
   .append("g")
@@ -102,7 +101,6 @@ d3.tsv("novo.csv", function(error, data) {
   color.domain(d3.keys(data[0]).filter(function(key) { return key !== "date"; }));
 
   data.forEach(function(d) {
-	//console.log(d.date);
    d.date = parseDate(d.date);
   });
 
@@ -115,14 +113,13 @@ d3.tsv("novo.csv", function(error, data) {
       })
     };
   });
-//console.log(materias);
+
     var materias=[]
     var tags = $("#TagsCourses").tagsinput('items');
 
 
     aux.forEach(function(m){
         if(contains(tags, m.name)){
-        console.log(m.name);
             materias.push(m);
         }
     });
@@ -145,24 +142,38 @@ d3.tsv("novo.csv", function(error, data) {
       .attr("transform", "rotate(-90)")
       .attr("y", 6)
       .attr("dy", ".71em")
-      .style("text-anchor", "end")
-      .text("Matricula");
-
+      .style("text-anchor", "end");
+//      .text("Matricula");
+var DivLegendas = document.getElementById("leg");
   var materia = svg.selectAll(".materia")
       .data(materias)
     .enter().append("g")
       .attr("class", "materia");
-var materiasArray = [];
   materia.append("path")
       .attr("class", "line")
       .attr("d", function(d) { return line(d.values); })
-      .style("stroke", function(d) { return color(d.name); });
+      .style("stroke", function(d) {
+      var tempElement = document.createElement('div');
+tempElement.innerHTML = "<div style='color:"+color(d.name)+"'>"+d.name+"</div>";
+document.getElementById("leg").appendChild(tempElement);
+  return color(d.name); 
+      
+  });
+//
+//  materia.append("text")
+//      .datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; })
+//      .attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.name) + ")"; })
+//      .attr("x", 3)
+//      .attr("dy", ".35em")
+//      .text(function(d) { return d.name; });
+//materia.forEach(function(m){
+//        
+//        console.log(m.name+ " " +color(m.name));
+//           
+//        
+//    });
 
-  materia.append("text")
-      .datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; })
-      .attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.name) + ")"; })
-      .attr("x", 3)
-      .attr("dy", ".35em")
-      .text(function(d) { return d.name; });
 });
+    
+   
 }
