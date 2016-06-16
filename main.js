@@ -1,8 +1,8 @@
 'use strict';
 var color = d3.scale.category10();
 var parseDate = d3.time.format("%Y").parse;
-
-
+var ObjsId = [];
+var dataNames = [];
 function AddCourse() {
     var e = document.getElementById("CourseSelect");
     var selected = e.options[e.selectedIndex].text;
@@ -53,6 +53,58 @@ function contains(a, obj) {
     }
     return false;
 }
+
+function containsCurso(a, obj) {
+  //  console.log(obj);
+    for (var i = 0; i < a.length; i++) {
+        if (a[i].Curso === obj) { 
+            return a[i];
+        }
+    }
+    return null;
+}
+
+
+function OpenData() {
+    d3.tsv("cursosId.csv", function(error, data) {
+  if (error) throw error;
+
+  color.domain(d3.keys(data[0]).filter(function(key) { return key !== "date"; }));
+
+  data.forEach(function(d) {
+   
+      ObjsId.push(d);
+  });
+               var materias=[]
+    var tags = $("#TagsCourses").tagsinput('items');
+
+    tags.forEach(function(m){
+ var aux = containsCurso(ObjsId, m);
+        if(aux!=null)
+            materias.push(aux);
+    });
+   
+//     console.log(tags);  
+ console.log(materias);  
+var check = $('input[name="optionsRadios"]:checked', '#myForm').val();
+    
+    if(check != "all"){
+    
+    materias.forEach(function(m){
+        dataNames.push("data-"+check+"-"+m.ID+".csv");
+    });
+    }
+        MakeData();
+});
+  
+    
+}
+
+function MakeData(){ }
+
+function ShowData(){
+
+}
 function ShowChart() {
     var color = d3.scale.category10();
 document.getElementById("legenda").style.display =  "block";
@@ -62,8 +114,8 @@ document.getElementById("grafico").style.display =  "block";
     document.getElementById("grafico").innerHTML = "";
      document.getElementById("leg").innerHTML = "";
     var margin = {top: 20, right: 80, bottom: 30, left: 50},
-    width = 560 - margin.left - margin.right,
-    height = 300 - margin.top - margin.bottom;
+    width = 760 - margin.left - margin.right,
+    height = 400 - margin.top - margin.bottom;
 
 var parseDate = d3.time.format("%Y").parse;
 
