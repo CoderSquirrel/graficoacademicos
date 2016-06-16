@@ -64,8 +64,9 @@ body {
 
             </div><!-- /.navbar-collapse -->
           </nav><!-- /navbar -->
-    <div class="container">
+    <div id="filtros" class="container">
  <div class="jumbotron">
+     <div id="fInit">
       <h1 class="demo-section-title">Filters</h1>
 
       <div class="row">
@@ -123,9 +124,12 @@ body {
         </div>
 <a href="#show" onclick ="ShowChart()" class="btn btn-block btn-lg btn-primary">Show Chart</a>
  </div>
+     <div id="fNovo" style="display:none">    <a href="#new" onclick ="NewChart()" class="btn btn-block btn-lg btn-primary">New Chart</a> </div>
+        
         </div> <!-- /container -->
-
-      
+</div>
+ 
+ 
       
       
          <div class="container">
@@ -136,9 +140,9 @@ body {
               <div class="col-xs-3">
                   
               </div>
-              <div class="col-xs-3">
+              <div id="legenda" style="display:none" class="col-xs-3">
                   
-                  Legenda
+                  Legend
                   <div id="leg" name="leg"></div>
                   
               </div>

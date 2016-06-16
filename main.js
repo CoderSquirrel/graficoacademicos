@@ -55,7 +55,10 @@ function contains(a, obj) {
 }
 function ShowChart() {
     var color = d3.scale.category10();
-
+document.getElementById("legenda").style.display =  "block";
+    document.getElementById("fNovo").style.display =  "block";
+    document.getElementById("fInit").style.display =  "none";
+document.getElementById("grafico").style.display =  "block";
     document.getElementById("grafico").innerHTML = "";
      document.getElementById("leg").innerHTML = "";
     var margin = {top: 20, right: 80, bottom: 30, left: 50},
@@ -176,4 +179,11 @@ document.getElementById("leg").appendChild(tempElement);
 });
     
    
+}
+
+function NewChart() {
+    document.getElementById("legenda").style.display =  "none";
+    document.getElementById("fNovo").style.display =  "none";
+    document.getElementById("fInit").style.display =  "block";
+     document.getElementById("grafico").style.display =  "none";
 }
