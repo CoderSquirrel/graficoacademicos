@@ -1,3 +1,5 @@
+/* VERDADEIRO PARA MOSTRAR SOMENTE NOME DO CURSO, FALSO PARA MOSTRAR VALORES JUNTOS*/
+var MOSTRAR_NOME = false;
 var regions = {
         "PUB": "Public",
         "PRIV": "Private"
@@ -10,13 +12,11 @@ var regions = {
     years = d3.range(startYear, endYear);
 var MIN = Number.MAX_VALUE,
     MAX = 0;
+var global = {min: 0, max: 0};
 var selecionadas = [];
 var color = d3.scale.category10();
 
-var countries_regions = {};
-
-var startEnd = {},
-    countryCodes = {};
+var startEnd = {};
 
 /*
  * Encontrar os valores minimos e maximos da seleção de cursos para ajustar a escala do grafico
@@ -41,7 +41,7 @@ function findMinMax(list) {
  * Cria o grafico para mostrar
  */
 function Chart() {
-
+    /* Se algum curso foi selecionado via checkbox então carrega o grafico só com ele, senão, carrega o grafico inicial com todos*/
     if (selecionadas.length > 0) {
         document.getElementById("vis").innerHTML = "";
         var vis = d3.select("#vis").append("svg:svg").attr("width", w).attr("height", h).append("svg:g");
@@ -55,7 +55,6 @@ function Chart() {
             var values = selecionadas[i].slice(1, selecionadas[i.length - 1]);
             var currData = [];
 
-            //countryCodes[countries[i][7]] = countries[i][0];
             var started = false;
 
             for (j = 0; j < values.length; j++) {
@@ -94,8 +93,8 @@ function Chart() {
             .text("Number of Students (square root)");
 
         vis.append("svg:text")
-            .attr("text-anchor", "middle") // this makes it easy to centre the text as the transform is applied to the anchor
-            .attr("transform", "translate(" + (w / 2) + "," + (h - 50) + ")") // centre below axis
+            .attr("text-anchor", "start") // this makes it easy to centre the text as the transform is applied to the anchor
+            .attr("transform", "translate(" + (20) + "," + (h - 20) + ")") // centre below axis
             .text("Years");
 
         vis.selectAll(".xLabel").data(x.ticks(4)).enter().append("svg:text").attr("class", "xLabel").text(String).attr("x", function(d) {
@@ -105,19 +104,26 @@ function Chart() {
             return y(d)
         }).attr("text-anchor", "right").attr("dy", 3);
 
-        vis.selectAll(".xTicks").data(x.ticks(6)).enter().append("svg:line").attr("class", "xTicks").attr("x1", function(d) {
-            return x(d);
-        }).attr("y1", y(MIN)).attr("x2", function(d) {
-            return x(d);
-        }).attr("y2", y(MIN) + 7);
-        vis.selectAll(".yTicks").data(y.ticks(4)).enter().append("svg:line").attr("class", "yTicks").attr("y1", function(d) {
-            return y(d + 60);
-        }).style("stroke", function(d) {
-            return "#666666";
-        }).attr("x1", x(2009)).attr("y2", function(d) {
-            return y(d + 60);
-        }).attr("x2", x(2013));
-
+//        vis.selectAll(".xTicks").data(x.ticks(6)).enter().append("svg:line").attr("class", "xTicks").attr("x1", function(d) {
+//            return x(d);
+//        }).attr("y1", y(MIN)).attr("x2", function(d) {
+//            return x(d);
+//        }).attr("y2", y(MIN) + 7);
+//        vis.selectAll(".yTicks").data(y.ticks(4)).enter().append("svg:line").attr("class", "yTicks").attr("y1", function(d) {
+//            return y(d + 60);
+//        }).style("stroke", function(d) {
+//            return "#666666";
+//        }).attr("x1", x(2009)).attr("y2", function(d) {
+//            return y(d + 60);
+//        }).attr("x2", x(2013));
+//  var yScale = d3.scale.linear()
+//	        .domain([MAX, MIN - (MAX * .2)]).range([0 + margin, h]);
+//         var yAxis = d3.svg.axis()
+//            .orient("left")
+//            .scale(yScale);
+//vis.select(".yaxis")
+//                    .transition().duration(1500).ease("sin-in-out")  // https://github.com/mbostock/d3/wiki/Transitions#wiki-d3_ease
+//                    .call(yAxis);  
 
         function onclick(d, i) {
 
@@ -131,23 +137,8 @@ function Chart() {
                 d3.select(this).classed('selected', true);
             }
         }
-        /*
-         * Muda a cor da linha e coloca o nome do curso em evidencia
-         */
-        function onmouseover(d, i) {
-            var currClass = d3.select(this).attr("class");
-            d3.select(this).attr("class", currClass + " current");
-            var countryCode = $(this).attr("diciplina");
-            //console.log(countryCode);
-            var countryVals = startEnd[countryCode];
-            //  var percentChange = 100 * (countryVals['endVal'] - countryVals['startVal']) / countryVals['startVal'];
-            var blurb = countryCode;
+       
 
-
-            //        blurb += "</p>";
-
-            $("#blurb-content").html(blurb);
-        }
     } else {
         Load();
     }
@@ -165,10 +156,40 @@ function onmouseout(d, i) {
     var currClass = d3.select(this).attr("class");
     var prevClass = currClass.substring(0, currClass.length - 8);
     d3.select(this).attr("class", prevClass);
-    //        $("#default-blurb").show();
-    //        $("#blurb-content").html('<br />');
+    //        $("#default-coursename").show();
+    //        $("#coursename-content").html('<br />');
 }
 
+ /*
+         * Muda a cor da linha e coloca o nome do curso em evidencia
+         */
+function onmouseover(d, i) {
+            var currClass = d3.select(this).attr("class");
+            d3.select(this).attr("class", currClass + " current");
+            var coursename = $(this).attr("diciplina");
+    if(MOSTRAR_NOME) {
+            $("#coursename-content").html("<b>"+coursename+"</b>");
+    }
+    else{
+            var value="";
+            var uni = "";
+           if($(this)[0]["__data__"][5]['y']=='PRIV') {
+                uni = "Private";
+            } else if ($(this)[0]["__data__"][5]['y']=='PUB')
+           {
+               uni = "Public"; 
+           }
+            for(var i = 0; i < 5; i++) {
+               
+                value +="&nbsp;&nbsp;&nbsp;&nbsp;"+$(this)[0]["__data__"][i]['x']+": "+$(this)[0]["__data__"][i]['y']+".";
+                
+            }
+          
+            
+            $("#coursename-content").html("<b>"+coursename+"</b>, "+uni+". &nbsp;&nbsp;&nbsp; "+value);
+        
+        }
+}
 
 /*
  * Mudar a cor da linha do curso quando selecionado o tipo de universidade
@@ -199,6 +220,8 @@ function Load() {
 
         MakeCheck();
         findMinMax(selecionadas);
+        global.max = MAX;
+        global.min = MIN;
         y = d3.scale.linear().domain([MAX, MIN - (MAX * .2)]).range([0 + margin, h]);
         x = d3.scale.linear().domain([2009, 2013.5]).range([0 + margin - 10, w - 10]);
         Chart();
@@ -213,15 +236,21 @@ function Load() {
  */
 function MakeCheck() {
 
-    var container = document.getElementById("CourseChecks");
+var left = document.getElementById("CourseChecksL");
+    var right = document.getElementById("CourseChecksR");
 
-    while (container.firstChild) {
-        container.removeChild(container.firstChild);
-    }
-
-
+if(left.childElementCount > 0 ) {
+    while (left.firstChild) {
+        left.removeChild(left.firstChild);
+    } 
+}
+   if(right.childElementCount > 0 ){
+   while (right.firstChild) {
+        right.removeChild(right.firstChild);
+    }}
+    
     for (var j = 1; j < selecionadas.length / 2; j++) {
-
+        
         var checkbox = document.createElement('input');
         checkbox.type = "checkbox";
         checkbox.name = "courseCheck";
@@ -233,13 +262,18 @@ function MakeCheck() {
             Check();
         }
         var label = document.createElement('label')
+        label.style.fontSize = "8px"
         label.htmlFor = "id";
         label.appendChild(document.createTextNode(selecionadas[j][0]));
-
-        container.appendChild(checkbox);
-        container.appendChild(label);
-        if (j > 0 && j % 2 == 0)
-            container.appendChild(document.createElement("br"));
+if ( j % 2 == 0) {
+        left.appendChild(checkbox);
+    left.appendChild(label);
+    left.appendChild(document.createElement("br"));
+    } else {
+             right.appendChild(checkbox);
+    right.appendChild(label); 
+         right.appendChild(document.createElement("br"));
+    }
     };
 
 }
@@ -271,9 +305,11 @@ function Check() {
         });
 
         findMinMax(selecionadas);
-        console.log(MIN+" "+MAX);
-        y = d3.scale.linear().domain([MAX, MIN - (MAX * .2)]).range([0 + margin, h]);
+       console.log(MIN+" "+MAX)
+        y = d3.scale.linear().domain([MAX, MIN - (MAX * .05)]).range([0 + margin, h]);
         x = d3.scale.linear().domain([2009, 2013.5]).range([0 + margin - 10, w - 10]);
+        
+            
         Chart();
     });
 
